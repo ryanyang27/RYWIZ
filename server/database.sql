@@ -1,0 +1,7 @@
+CREATE DATABASE RYWIZ
+
+CREATE TABLE listings(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50),
+    description VARCHAR(500)
+);
