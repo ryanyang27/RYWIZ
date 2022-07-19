@@ -47,19 +47,6 @@ app.get("/Listings", async(req, res) => {
 })
 
 //Edit a Listing
-/*app.put("/Listings/:id", async(req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, description, aws_key} = req.body;
-        const editListing = await pool.query(
-            "UPDATE listings SET name = $1, description = $2, s3_key = $3 WHERE id = $4",
-            [name, description, aws_key, id]
-        );
-        res.json("Listing was updated!")
-    } catch (err) {
-        console.error(err.message);
-    }
-})*/
 app.put("/Listings/:id", upload.single('image'), async(req, res) => {
     try {
         const { id } = req.params;  
