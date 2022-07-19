@@ -29,7 +29,7 @@ const GetListings = () => {
                 <Fragment key={listings.id}>
                     <div className = "d-flex justify-content-center mt-5">
                         <div className ="d-flex justify-content-end w-25">
-                            <img src={"http://localhost:5000/image/" + listings.s3_key} alt="" className = "rounded"width={250} height={250}></img>
+                            <img src={"http://localhost:5000/image/" + listings.s3_key} alt="" className = "rounded outline"width={250} height={250}></img>
                         </div>
                         <div className ="w-50 outline">
                             <div className = "d-flex justify-content-between">

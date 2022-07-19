@@ -6,41 +6,25 @@ function SubmissionPage() {
     const [file, setFile] = useState()
     const [info, setInfo] = useState({
         name: "",
-        description: "",
-        aws_key: ""
+        description: ""
     });
     const navigate = useNavigate();
-    const uploadImage = async() => {
+    const uploadListing = async() => {
         const formData = new FormData();
         formData.append("image", file);
+        formData.append("name", info.name);
+        formData.append("description", info.description);
         try {
-            const response = await axios.post('http://localhost:5000/image', formData, {headers: {'Content-Type' : 'multipart/form-data'}});
-            setInfo((prevInfo) => ({
-                ...prevInfo,
-                aws_key: response.data
-            }));
-        } catch (err) {
-            console.error(err.message);
-        }
-    }
-    const writeToDatabase = async() => {
-        try {
-            const response = await fetch("http://localhost:5000/Listings", {
-                method: "POST",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(info),
+            const response = await axios.post('http://localhost:5000/Listings', formData, {
+                headers: {'Content-Type' : 'multipart/form-data'}
             });
-        
         } catch (err) {
             console.error(err.message);
         }
     }
-
     const handleSubmit = async(submission) => {
         submission.preventDefault();
-        await uploadImage();
-        console.log(info.aws_key);
-        await writeToDatabase();
+        await uploadListing();
         navigate('/');
     };
 
@@ -69,7 +53,7 @@ function SubmissionPage() {
                     value={info.name}
                     required
                     name="name"
-                    placeholder="School name"
+                    placeholder="Name"
                     onChange={handleFormChange}
                     rows = "1"
                     cols = "100"
@@ -84,7 +68,7 @@ function SubmissionPage() {
                     value={info.description}
                     required
                     name="description"
-                    placeholder="Description of your school"
+                    placeholder="Description of your product"
                     onChange={handleFormChange}
                     rows="4" 
                     cols="100"
@@ -94,8 +78,9 @@ function SubmissionPage() {
                 <div className="d-flex">
                     <p className="mr-5 font-weight-bold">Image:</p>  
                     <input
+                    required
                     type="file"
-                    name="schoolImage"
+                    name="image"
                     onChange={fileUploaded}
                     />
                 </div>
@@ -103,7 +88,6 @@ function SubmissionPage() {
                     <button className="btn btn-primary rounded-5">Submit</button>
                 </div>
             </form>
-            <button onClick={() => {console.log(info.aws_key)}}></button>
         </div>
     </div>
     )

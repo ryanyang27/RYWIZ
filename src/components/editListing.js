@@ -1,24 +1,32 @@
 import React, { Fragment, useState} from "react";
+import axios from 'axios';
 
 const EditListing = ({ listing }) => {
+    const [file, setFile] = useState()
     const [info, setInfo] = useState({
         name: listing.name,
         description: listing.description,
-        aws_key: listing.s3_key
     });
-    const handleSubmit = async(submission) => {
-        submission.preventDefault();
+    const editListing = async() => {
+        const formData = new FormData();
+        formData.append("image", file);
+        console.log("Ayo sup");
+        formData.append("name", info.name);
+        formData.append("description", info.description);
         try {
-            const response = await fetch('http://localhost:5000/Listings/' + listing.id, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(info)
+            const response = await axios.put('http://localhost:5000/Listings/' + listing.id, formData, {
+                headers: {'Content-Type' : 'multipart/form-data'}
             });
+            console.log("Ayo sup");
             console.log(response);
-            window.location = "/";
         } catch (err) {
             console.error(err.message);
         }
+    }
+    const handleSubmit = async(submission) => {
+        submission.preventDefault();
+        await editListing();
+        window.location = "/";
     };
 
     const handleFormChange = (submission) => {
@@ -28,6 +36,11 @@ const EditListing = ({ listing }) => {
             [name]: value,
         }));
     };
+    const fileUploaded = (event) => {
+        const file = event.target.files[0];
+        setFile(file);
+    }
+
     return (
         <Fragment>
             <div className = "text-right">
@@ -80,6 +93,7 @@ const EditListing = ({ listing }) => {
                             <input
                             type="file"
                             name="schoolImage"
+                            onChange={fileUploaded}
                             />
                         </div>
                         <div className="text-right">

@@ -1,7 +1,7 @@
 import './App.css';
 import React from "react";
 import GetListings from "./components/getListings.js";
-import SubmissionPage from './newPosting';
+import SubmissionPage from './components/newPosting';
 import {BrowserRouter as Router, Link, Route, Routes} from 'react-router-dom';
 
 

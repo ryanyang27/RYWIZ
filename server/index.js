@@ -5,7 +5,8 @@ const pool = require('./db');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'})
 
-const {uploadFile, getFileStream, deleteFile} = require('./s3access.js')
+const {uploadFile, getFileStream, deleteFile} = require('./s3access.js');
+const e = require('express');
 
 
 app.use(cors());
@@ -17,12 +18,14 @@ app.listen(5000, () => {
 
 //Create a Listing
 
-app.post("/Listings", async(req, res) => {
-    try {   
-        const {name, description, aws_key} = req.body;
+app.post("/Listings", upload.single('image'), async(req, res) => {
+    try { 
+        const {name, description} = req.body;
+        const file = req.file
+        const result = await uploadFile(file);
         const newListing = await pool.query(
             "INSERT INTO listings (name, description, s3_key) VALUES($1, $2, $3) RETURNING *", 
-            [name, description, aws_key]
+            [name, description, result.Key]
         );
         res.json(newListing.rows[0]);
     } catch (err) {
@@ -33,7 +36,6 @@ app.post("/Listings", async(req, res) => {
 //Get all Listings
 app.get("/Listings", async(req, res) => {
     try {   
-        const {name, description} = req.body;
         const Listings = await pool.query(
             "SELECT * FROM listings", 
         );
@@ -45,7 +47,7 @@ app.get("/Listings", async(req, res) => {
 })
 
 //Edit a Listing
-app.put("/Listings/:id", async(req, res) => {
+/*app.put("/Listings/:id", async(req, res) => {
     try {
         const { id } = req.params;
         const { name, description, aws_key} = req.body;
@@ -57,19 +59,30 @@ app.put("/Listings/:id", async(req, res) => {
     } catch (err) {
         console.error(err.message);
     }
-})
-
-//Upload an Image
-app.post('/image', upload.single('image'), async(req, res) => {
-    const file = req.file;
+})*/
+app.put("/Listings/:id", upload.single('image'), async(req, res) => {
     try {
-        const result = await uploadFile(file);
-        res.send(result.Key);
-
-    } catch(err) {
+        const { id } = req.params;  
+        const {name, description} = req.body;
+        if (req.file) {
+            const file = req.file
+            const result = await uploadFile(file);
+            const editListing = await pool.query(
+                "UPDATE listings SET name = $1, description = $2, s3_key = $3 WHERE id = $4", 
+                [name, description, result.Key, id]
+            );
+        } else if (!req.file) {
+            const editListing = await pool.query(
+                "UPDATE listings SET name = $1, description = $2 WHERE id = $3", 
+                [name, description, id]
+            );
+        }    
+        res.json("Listing was updated!")
+    } catch (err) {
         console.error(err.message);
     }
 })
+
 
 //Retrieve an Image
 app.get('/image/:key', (req, res) => {
